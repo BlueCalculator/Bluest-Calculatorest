@@ -1,0 +1,374 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+---
+
+<Layout title="Slots">
+	 <div class="outter">
+        <div class="slot">
+            <div class="arrow"></div>
+            <div class="slots">
+                <div class="slotcon" id="one">
+                    <div class='slotIteam initialItem'>💎</div>
+                </div>
+            </div>
+            <div class="slots">
+                <div class="slotcon" id="two">
+                    <div class='slotIteam initialItem'>💎</div>
+                </div>
+            </div>
+            <div class="slots">
+                <div class="slotcon" id="three">
+                    <div class='slotIteam initialItem'>💎</div>
+                </div>
+            </div>
+        </div>
+        <div class="bottomBar">
+            <div class="play">
+                <div class="range-container">
+                    <!-- <div>Bet Amount</div> -->
+                    <button type="button" onclick="step(-1)">-</button>
+                    <input type="number" id="slider" min=0" value="1" step="1">
+                    <button type="button" onclick="step(1)">+</button>
+                </div>
+                <button onclick="startGame()" class="button-good">Play</button>
+            </div>
+
+        </div>
+    </div>
+    <div class="list displayColumn">
+        <p class='scoringIteam'>3x 💎: x150</p>
+        <p class='scoringIteam'>3x 🔔: x56</p>
+        <p class='scoringIteam'>3x 🍀: x30</p>
+        <p class='scoringIteam'>3x 💩: x22</p>
+        <p class='scoringIteam'>3x 🌯: x15</p>
+        <p class='scoringIteam'>3x 🍒: x7</p>
+    </div>
+
+    <script is:inline>
+    const $ = (id) => document.getElementById(id);
+    let one = $('one')
+    let two = $('two')
+    let three = $('three')
+    let slider = $('slider')
+    let betAmountSet;
+    let gameInSession = false;
+
+    const rarities = {
+      '🍒': 50,       // ~40% chance
+      '🌯': 40,       // ~30%
+      '💩': 35,       // ~15%
+      '🍀': 15,        // ~2%
+      '🔔': 5,        // ~1%
+      '💎': 1       // ~0.5%
+    };
+
+    const winnings = {
+      '🍒': 7,
+      '🌯': 15,
+      '💩': 22,
+      '🍀': 30,
+      '🔔': 56,
+      '💎': 150
+    };
+
+    const symbols = Object.keys(rarities);
+    const totalWeight = Object.values(rarities).reduce((a, b) => a + b, 0);
+    const probs = symbols.map(sym => rarities[sym] / totalWeight);
+
+    function step(stepAmount){
+        let stepedNumber = Number(slider.value) + Number(stepAmount)
+        if(Math.sign(stepedNumber) == 1 || Math.sign(stepedNumber) == 0){
+            slider.value = stepedNumber
+        } else {
+            window.dispatchEvent(
+              new CustomEvent('local-storage', {
+                detail: {
+                  key: 'msg-bad',
+                  msg: "You Cannot Bet Negative Amounts.",
+                  bgc: "red",
+                  txtc: "White",
+                },
+              }),
+            )
+            return
+        }
+    }
+
+    function generateReel(length) {
+      const reel = [];
+      const reelClean = [];
+      for (let i = 0; i < length; i++) {
+        let r = Math.random();
+        let cumulative = 0;
+        for (let j = 0; j < probs.length; j++) {
+          cumulative += probs[j];
+          if (r <= cumulative) {
+            reel.push('<p class=\'slotIteam\'>' + symbols[j] + '</p>');
+            reelClean.push(symbols[j])
+            break;
+          }
+        }
+      }
+      return {
+        one: reel, 
+        two: reelClean
+      }
+    }
+
+    function animation(el, delay) {
+      if (el) {
+        setTimeout(() => {
+          el.classList.add('scrollDown');
+        }, delay);
+      }
+    }
+
+    function removeAnimation(el){
+        if(el){
+            el.classList.remove('scrollDown')
+            el.innerHTML = ''
+            void el.offsetWidth;
+        }
+    }
+
+    function startGame(){
+        if(gameInSession){
+            return
+        }
+        gameInSession = true;
+        let CurrentPurseAmount = getPurseAmount()
+        betAmountSet = 0
+        betAmountSet = slider.value
+        if(CurrentPurseAmount - betAmountSet < 0){
+            window.dispatchEvent(
+              new CustomEvent('local-storage', {
+                detail: {
+                  key: 'msg-bad',
+                  msg: "Your too broke to bet that much.",
+                  bgc: "red",
+                  txtc: "White",
+                },
+              }),
+            )
+            return
+        }
+        setPurseAmount(CurrentPurseAmount - betAmountSet)
+
+        gameLoopOn = true
+
+        removeAnimation(one)
+        removeAnimation(two)
+        removeAnimation(three)
+
+        let oneReel = generateReel(20) 
+        let twoReel = generateReel(20)
+        let threeReel = generateReel(20)
+
+        one.innerHTML = oneReel.one.join('')
+        two.innerHTML = twoReel.one.join('')
+        three.innerHTML = threeReel.one.join('')
+
+        animation(one, 0)
+        animation(two, 500)
+        animation(three, 1000)
+
+        let win = checkWin(oneReel.two, twoReel.two, threeReel.two)
+
+        console.log(win)
+
+        setTimeout(() => {
+            if(Number(win.multiplier) > 0){
+                setPurseAmount(Number(getPurseAmount()) + (betAmountSet * Number(win.multiplier)))
+            }
+
+            gameInSession = false
+        }, 4000);
+    }
+
+    function checkWin(reel1, reel2, reel3) {
+        const result = [reel1.at(-1), reel2.at(-1), reel3.at(-1)];
+  
+        const isMatch =
+          result[0] &&
+          result[0] === result[1] &&
+          result[1] === result[2];
+  
+        if (isMatch) {
+          return {
+            result,
+            symbol: result[0],
+            multiplier: winnings[result[0]] || 0,
+            win: true
+          };
+        }
+  
+        return {
+          result,
+          symbol: null,
+          multiplier: 0,
+          win: false
+        };
+    }
+
+    function getPurseAmount(){
+        return localStorage.getItem('purseAmount')
+    }
+
+    function setPurseAmount(newAmount) {
+      // update localStorage
+      localStorage.setItem('purseAmount', newAmount)
+                
+      // fire custom event so listeners update
+      window.dispatchEvent(
+        new CustomEvent('local-storage', {
+          detail: {
+            key: 'purseAmount',
+            value: newAmount,
+          },
+        }),
+      )
+    }
+
+</script>
+</Layout>
+
+<style scoped> 
+    .slot{
+        width: 100%;
+        min-height: 30rem;
+        border: solid var(--solidLine) 1px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        justify-content: space-around;
+    }
+    .arrow {
+      width: 0;
+      height: 0;
+      border-top: 20px solid transparent;
+      border-bottom: 20px solid transparent;
+      border-left: 10px solid var(--arrow);
+      z-index: 999;
+      left: 0px;
+    }
+    .slots{
+        width: 30%;
+        height: 28rem;
+        border-radius: .5rem;
+        border: solid var(--solidLine) 1px;
+        overflow: hidden;
+        box-shadow: 
+            inset 0 7rem 20px -10px rgba(0, 0, 0, 0.142),
+            inset 0 -7rem 20px -10px rgba(0, 0, 0, 0.142);
+    }
+
+    .initialItem{
+        transform: translateY(50%);
+    }
+
+    .button-good{
+        width: 90%;
+        height: 20vh;
+    }
+
+    .play{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .range-container{
+    width: 90%;
+    height: 10vh;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;   
+}
+
+.range-container button {
+    font-size: 50px;
+    width: 100px;
+    height: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--cream);
+    border: 1px var(--solidLine) solid;
+    cursor: pointer;
+
+}
+
+#slider{        
+    width: 200px;
+    border: 1px var(--solidLine) solid;
+    outline: none;
+    height: 80%;
+    align-items: center;
+}
+
+input[type="number"] {
+    font-size: 50px;
+    text-align: center;
+}
+
+input[type="number"] {
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+
+</style>
+
+<style is:global>
+    .slotcon{
+        height: 90%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    @media (min-width: 766px) {
+        .slotIteam{
+            font-size: 8rem;
+        }
+        .scrollDown{
+            animation: scrollDown 3s ease-in-out 1 forwards;
+        }
+        @keyframes scrollDown {
+            from {
+                transform: translateY(0px);
+            }
+            to {
+                transform: translateY(-880%);
+            }
+        }
+    }
+
+    @media (max-width: 765px) {
+        .slotIteam {
+            font-size: 5rem;
+        }
+        .scrollDown{
+            animation: scrollDown 3s ease-in-out 1 forwards;
+        }         
+        @keyframes scrollDown {
+            from {
+                transform: translateY(0px);
+            }
+            to {
+                transform: translateY(-535%);
+            }
+        }  
+    }
+</style>
+

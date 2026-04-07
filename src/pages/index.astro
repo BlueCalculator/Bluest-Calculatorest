@@ -1,11 +1,181 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Home">
+	<div class="welcomeBanner">
+        <h1>Web design so fire, even my duck wants equity.</h1>
+        <h2>Gamble your little heart out, earn loonies, and bribe your way into my portfolio</h2>
+        <div class="buttonBox">
+          <button type="button" onclick="scrollto('howToPlay')">Start Playing</button>
+          <button type="button">Skip to portfolio</button>  
+        </div>
+    </div>
+
+    <div class="ascii-container">
+      <pre class="ascii-art" id="ascii-duck"></pre>
+      <pre class="ascii-art" id="ascii-calc"></pre>
+    </div>
+
+    <div class="list howToPlay" id="howToPlay">
+      <h3>How To Play</h3>
+      <p>Earn loonies through minigames, then spend them to unlock exclusive portfolio content. No real money involved.
+        <ul>
+          <li>Pick a game from the hub below.</li>
+          <li>Play and win loonies.</li>
+          <li>Spend loonies on portfolio items.</li>
+          <li>If ur boring, skip straight to summaries via "Skip to portfolio" button.</li>
+          <li>If you need loonies go to the market.</li>
+        </ul>
+      </p>
+    </div>
+
+    <div class="list">
+
+      <a class="gameItem" href="./games/rideTheBus">      
+        <div class="rideTheBus">
+          <p>RIDE THE BUS</p>
+        </div>
+      </a>
+      <a class="gameItem" href="./games/slots">
+        <div class="slots">
+          <p>SLOTS</p>
+        </div>
+      </a>
+ 
+    </div>
+    <script is:inline>
+    Promise.all([
+      fetch('duck.txt').then(r => r.text()),
+      fetch('calc.txt').then(r => r.text())
+    ]).then(([duckText, calcText]) => {
+      const duckPre = document.getElementById('ascii-duck');
+      const calcPre = document.getElementById('ascii-calc');
+      const container = duckPre.parentElement;
+      
+      duckPre.textContent = duckText;
+      calcPre.textContent = calcText;
+      
+      const SIZE_MULTIPLIER = 0.8; 
+      
+      function resizeAscii() {
+        duckPre.style.transform = 'none';
+        calcPre.style.transform = 'none';
+        duckPre.style.top = '0px';
+        calcPre.style.top = '0px';
+        
+        const ww = window.innerWidth;
+        const wh = window.innerHeight;
+        
+        const duckW = duckPre.offsetWidth;
+        const duckH = duckPre.offsetHeight;
+        const calcW = calcPre.offsetWidth;
+        const calcH = calcPre.offsetHeight;
+        
+        if (duckW > 0 && calcW > 0) {
+          const scaleW = (ww - 20) / (duckW + calcW + 40);
+          
+          const maxH = Math.max(duckH, calcH);
+          const scaleH = (wh * 0.8) / maxH;
+          
+          const scale = Math.min(scaleW, scaleH) * SIZE_MULTIPLIER;
+          
+          duckPre.style.transform = `scale(${scale})`;
+          calcPre.style.transform = `scale(${scale})`;
+          
+          const scaledMaxH = maxH * scale;
+          
+          duckPre.style.top = ((scaledMaxH - (duckH * scale)) / 2) + 'px';
+          calcPre.style.top = ((scaledMaxH - (calcH * scale)) / 2) + 'px';
+          
+          container.style.height = Math.ceil(scaledMaxH) + 'px';
+        }
+      }
+      
+      window.addEventListener('resize', resizeAscii);
+      setTimeout(resizeAscii, 50);
+    }).catch(err => console.error('Error loading ASCII art:', err));
+
+
+    function scrollto(id){
+      const target = document.getElementById(id)
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+    </script>
 </Layout>
+
+<style scoped>
+    h1 {
+      font-size: 4rem;
+    }
+    h2 {
+      padding-bottom: 2rem;
+      font-size: 2rem
+    }
+    button {
+      padding: 1rem;
+    }
+    .welcomeBanner{
+        padding-top: 100px;
+        margin-bottom: 100px;
+        text-align: center;
+    }
+    .ascii-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    pre.ascii-art {
+      font-weight: bold;
+      position: absolute;
+      top: 0;
+      margin: 0;
+      padding: 0;
+      font-family: 'JetBrains Mono', monospace, Consolas;
+      white-space: pre;
+      line-height: 1;
+      will-change: transform;
+      -webkit-user-select: none;  /* Safari/Chrome */
+      -moz-user-select: none;     /* Firefox */
+      -ms-user-select: none;      /* IE/Edge */
+      user-select: none;          /* Standard */
+      -webkit-touch-callout: none; /* iOS Safari */
+    }
+
+    #ascii-duck {
+      left: 10px;
+      transform-origin: left top;
+    }
+
+    #ascii-calc {
+      right: 10px;
+      transform-origin: right top;
+    }
+
+    .gameItem{
+      background-color: var(--box-Background);
+      border: 1px solid var(--solidLine);
+      text-decoration: none;
+      color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      width: 200px;
+      height: 200px;
+      transition: .5s;
+    }
+    .gameItem:hover {
+      transform: skew(1.5deg);
+    }
+    .howToPlay{
+      flex-direction: column;
+    }
+</style>

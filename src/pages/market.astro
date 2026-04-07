@@ -1,0 +1,383 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Market">
+    <div class="outter">
+        <div class="emailBuyer list displayColumn">
+            <h2>Want the Email?</h2>
+            <label for="BEmail">1000 Looniens:</label>
+            <button class="button-good" id="BEmail" onclick="EmailBought()">Buy Email</button>
+            <div id="BoughtEmail"></div>
+        </div>
+        <div class="needMoney list displayColumn">
+            <h2>Do You Need Money?</h2>
+            <button class="button-good" onclick="displayPlateWindow()">Get More Money</button>
+        </div>
+        <div id="plateWindowWindwo">
+            <div class="plateWindow" id="plateWindow">
+                <h2>Click and drag to clean the plate.</h2>
+                <div class="workingWindow" id="workingWindow">
+                  <div class="stack" id="plateStack">
+                    <img class="plates bottom" src="/imgs/plate.png" alt="">
+                
+                    <svg class="plates topMask" id="topMaskSvg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <defs>
+                        <mask id="plateEraseMask" maskUnits="objectBoundingBox" maskContentUnits="userSpaceOnUse">
+                          <rect x="0" y="0" width="100" height="100" fill="white"></rect>
+                          <g id="eraseMarks"></g>
+                        </mask>
+                      </defs>
+                  
+                      <image
+                        href="/imgs/dirtyPlate.png"
+                        x="0"
+                        y="0"
+                        width="100"
+                        height="100"
+                        preserveAspectRatio="none"
+                        mask="url(#plateEraseMask)"
+                      />
+                    </svg>
+                  </div>
+              
+                  <img class="sponge" id="sponge" src="/imgs/sponge.png" alt="">
+                </div>   
+                <div class="buttonBoxRedeem">
+                    <button type="button" class="button-good" id="loonieRedeemer" onclick="redeemLoonie(1)">1 Loonie</button>         
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+</Layout>
+
+<script is:inline>
+    const $ = (id) => document.getElementById(id);
+    let boughtEmail = $('BoughtEmail')
+    const plateWindowInner = $('plateWindow')
+    const plateWindow = $('plateWindowWindwo')
+
+    plateWindow.style.display = "none"
+
+    function displayPlateWindow(){
+        plateWindow.style.display = 'block'
+    }
+
+    plateWindowInner.addEventListener("click", (e) => {
+        plateWindow.style.display = "none"
+    })
+
+    
+    function EmailBought(){
+        let purseAmount = getPurseAmount()
+
+        if(Number(purseAmount) >= 1000){
+            boughtEmail.innerText = atob("Qmx1ZUNhbGN1bGF0b3JAZ21haWwuY29t")
+            setPurseAmount(Number(purseAmount) - 1000)
+        }
+
+
+    }
+
+    function getPurseAmount(){
+        return localStorage.getItem('purseAmount')
+    }
+
+
+    function setPurseAmount(newAmount) {
+      // update localStorage
+      localStorage.setItem('purseAmount', newAmount)
+                
+      // fire custom event so listeners update
+      window.dispatchEvent(
+        new CustomEvent('local-storage', {
+          detail: {
+            key: 'purseAmount',
+            value: newAmount,
+          },
+        }),
+      )
+    }
+
+const workingWindow =   $("workingWindow");
+const plateStack =  $("plateStack");
+const sponge =  $("sponge");
+const eraseMarks =  $("eraseMarks");
+const loonieRedeemer = $("loonieRedeemer")
+
+let isErasing = false;
+let lastPoint = null;
+
+const BRUSH_RADIUS = 5;
+const STEP = 1.5;
+const GRID_SIZE = 80;
+
+const dirtGrid = Array.from({ length: GRID_SIZE }, () =>
+  Array(GRID_SIZE).fill(1)
+);
+
+loonieRedeemer.style.display = 'none'
+
+document.querySelectorAll('.no-drag').forEach(el => {
+  el.addEventListener('dragstart', e => e.preventDefault());
+});
+
+function redeemLoonie(amount) {
+    setPurseAmount(Number(getPurseAmount()) + Number(amount))
+    loonieRedeemer.style.display = 'none'
+    plateWindow.style.display = "none"
+    resetCleaning()
+}
+
+function resetCleaning() {
+  eraseMarks.replaceChildren();
+
+  for (let row = 0; row < GRID_SIZE; row++) {
+    dirtGrid[row].fill(1);
+  }
+
+  isErasing = false;
+  lastPoint = null;
+}
+
+function moveSponge(localX, localY) {
+  sponge.style.left = `${localX}px`;
+  sponge.style.top = `${localY}px`;
+}
+
+function getRect() {
+  return plateStack.getBoundingClientRect();
+}
+
+function getLocalPoint(e) {
+  const rect = getRect();
+  if (!rect.width || !rect.height) return null;
+
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top,
+    width: rect.width,
+    height: rect.height
+  };
+}
+
+function toMaskPoint(localPoint) {
+  return {
+    x: Math.max(0, Math.min(100, (localPoint.x / localPoint.width) * 100)),
+    y: Math.max(0, Math.min(100, (localPoint.y / localPoint.height) * 100))
+  };
+}
+
+function getDirtyPercent() {
+  let total = 0;
+
+  for (let row = 0; row < GRID_SIZE; row++) {
+    for (let col = 0; col < GRID_SIZE; col++) {
+      total += dirtGrid[row][col];
+    }
+  }
+
+  return (total / (GRID_SIZE * GRID_SIZE)) * 100;
+}
+
+function getCleanPercent() {
+  return 100 - getDirtyPercent();
+}
+
+function affectGrid(point) {
+  const brush = BRUSH_RADIUS;
+  const cellSize = 100 / GRID_SIZE;
+
+  for (let row = 0; row < GRID_SIZE; row++) {
+    for (let col = 0; col < GRID_SIZE; col++) {
+      const cx = (col + 0.5) * cellSize;
+      const cy = (row + 0.5) * cellSize;
+      const dx = cx - point.x;
+      const dy = cy - point.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist <= brush) {
+        dirtGrid[row][col] = Math.max(0, dirtGrid[row][col] - 0.08);
+      }
+    }
+  }
+}
+
+function stamp(point) {
+  if (!Number.isFinite(point.x) || !Number.isFinite(point.y)) return;
+
+  const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  circle.setAttribute("cx", point.x);
+  circle.setAttribute("cy", point.y);
+  circle.setAttribute("r", BRUSH_RADIUS);
+
+  circle.setAttribute("fill", "black");
+  circle.setAttribute("fill-opacity", "0.08");
+
+  eraseMarks.appendChild(circle);
+
+  affectGrid(point)
+
+  if(getCleanPercent() >= 88){
+    loonieRedeemer.style.display = 'block'
+  }
+
+}
+
+function eraseLine(point) {
+  if (!lastPoint) {
+    stamp(point);
+    lastPoint = point;
+    return;
+  }
+
+  const dx = point.x - lastPoint.x;
+  const dy = point.y - lastPoint.y;
+  const dist = Math.hypot(dx, dy);
+
+  if (!dist) {
+    stamp(point);
+    lastPoint = point;
+    return;
+  }
+
+  for (let i = 0; i <= dist; i += STEP) {
+    const x = lastPoint.x + (dx * i) / dist;
+    const y = lastPoint.y + (dy * i) / dist;
+    stamp({ x, y });
+  }
+
+  lastPoint = point;
+}
+
+workingWindow.addEventListener("pointerdown", (e) => {
+  const local = getLocalPoint(e);
+  if (!local) return;
+
+  isErasing = true;
+  lastPoint = null;
+
+  sponge.src = '/imgs/spongeCleaning.png'
+
+  workingWindow.setPointerCapture?.(e.pointerId);
+  document.body.classList.add("scrubbing");
+
+  moveSponge(local.x, local.y);
+  eraseLine(toMaskPoint(local));
+
+  e.preventDefault();
+});
+
+workingWindow.addEventListener("pointermove", (e) => {
+  const local = getLocalPoint(e);
+  if (!local) return;
+
+  moveSponge(local.x, local.y);
+
+  if (!isErasing) return;
+
+  eraseLine(toMaskPoint(local));
+  e.preventDefault();
+});
+
+function stopErasing() {
+    isErasing = false;
+    lastPoint = null;
+    sponge.src = '/imgs/sponge.png'
+    document.body.classList.remove("scrubbing");
+}
+
+workingWindow.addEventListener("pointerup", stopErasing);
+workingWindow.addEventListener("pointercancel", stopErasing);
+workingWindow.addEventListener("lostpointercapture", stopErasing);
+window.addEventListener("pointerup", stopErasing);
+</script>
+
+<style scoped>
+    .workingWindow {
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        position: relative;
+        width: 500px;
+        height: 500px;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-user-drag: none;
+        touch-action: none;
+    }
+
+    .stack {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .plates,
+    .topMask {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .bottom {
+      pointer-events: none;
+    }
+
+    .topMask {
+      z-index: 2;
+    }
+
+    .sponge {
+      position: absolute;
+      width: 78px;
+      z-index: 5;
+      pointer-events: none;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -70%);
+    }
+
+    .no-drag {
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    body.scrubbing,
+    body.scrubbing * {
+      cursor: none;
+    }
+    .plateWindow h2 {
+        color: white;
+    }
+    .plateWindowWindwo{
+        width: 100%;
+        height: 100%;
+    }
+    .buttonBoxRedeem{
+        height: 20px;
+    }
+</style>
+
+<style is:global>
+    .plateWindow{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 20px;
+        position: absolute;
+        top: 0px;
+        z-index: 1000;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.67);
+
+    }
+</style>

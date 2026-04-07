@@ -1,0 +1,58 @@
+/* Modern CSS Reset by Andy Bell */
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  /* Remove default margins */
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    color-scheme: light;
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    line-height: 1.15;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+  }
+
+  /* Images*/
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* Forms */
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    font-size: 100%;
+  }
+
+  /* list */
+  ul,
+  ol {
+    padding-left: 2rem;
+  }
+
+  /* Tables */
+  table {
+    border-collapse: collapse;
+  }
+}

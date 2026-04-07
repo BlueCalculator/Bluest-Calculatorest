@@ -1,23 +1,135 @@
-<!doctype html>
+---
+import '../css/reset.css'
+import '../css/global.css'
+import TopNav from '../components/topNav.vue';
+import SiteFooter from '../components/footer.vue';
+
+export interface Props {
+  title?: string;
+  description?: string;
+
+}
+
+const siteName = "Bluest Calculatorest";
+
+
+const {
+  title = "ABS",
+  description = ""
+
+} = Astro.props;
+
+---
+
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+  <head>
+
+	<link rel="apple-touch-icon" sizes="57x57" href="/imgs/favicon/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="/imgs/favicon/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/imgs/favicon/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="/imgs/favicon/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/imgs/favicon/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="/imgs/favicon/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="/imgs/favicon/apple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="/imgs/favicon/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/imgs/favicon/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192"  href="/imgs/favicon/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/imgs/favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="/imgs/favicon/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/imgs/favicon/favicon-16x16.png">
+	<link rel="manifest" href="/imgs/favicon/manifest.json">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-TileImage" content="/imgs/favicon/ms-icon-144x144.png">
+	<meta name="theme-color" content="#ffffff">
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{`${title} | ${siteName}`}</title>
+    <slot name="head" />
+  </head>
+  <body>
+    <div class="total-view">
+        <!-- nav -->
+        <TopNav client:load />
+
+        <!-- page content -->
+        <main>
+			<div id="msgBox"></div>
+            <div class="main-content">
+              <slot />
+            </div>
+
+        </main>
+
+        <!-- footer -->
+        <SiteFooter />
+
+    </div>
+	<script is:inline>
+		const msgBoxId = document.getElementById("msgBox")
+
+		window.addEventListener('local-storage', (e) => {
+  		  if (e.detail.key === 'purseAmount') {
+  		    return
+  		  } else if(e.detail.key === 'msg-bad'){
+			msgBox(e.detail.msg, e.detail.bgc, e.detail.txtc)
+  		  }
+  		})
+
+		function msgBox(msg, bgc, txtc) {
+			msgBoxId.innerText = msg;
+			msgBoxId.classList.remove('show-animate');
+			msgBoxId.offsetWidth; 
+			msgBoxId.classList.add('show-animate');
+			msgBoxId.style.display = 'block';
+  			msgBoxId.style.backgroundColor = bgc;
+			msgBoxId.style.color = txtc
+
+		}
+	</script>
+  </body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
+<style scoped>
+	#msgBox{
+		z-index: 999999999;
+		position: absolute;
+		border: 1px solid var(--solidLine);
+		left: 50%;
+		display: none;
+		margin-top: 30px;
+		transform: translateX(-50%);
+		padding: 10px;
+		border-radius: 10px;
+	}
+
+	#msgBox.show-animate {
+	  opacity: 1;
+	  transform: translateX(-50%) translateY(0) scale(1);
+	}
+	
+	#msgBox.show-animate {
+	  animation: fadeInOut 4s forwards;
+	}
+
+	.main-content {
+		max-width: 1200px;
+  		margin: 0 auto;  /* Center outer */
+  		position: relative
+		flex: 1;
+		min-height: 86vh;
+	}
+	
+	@keyframes fadeInOut {
+	  0% { opacity: 0; transform: translateX(-50%) translateY(-15px); }
+	  20% { opacity: 1; transform: translateX(-50%) translateY(0); }
+	  80% { opacity: 1; }
+	  100% { opacity: 0; transform: translateX(-50%) translateY(-15px); }
+	}
+
+	.total-view{
+		display: flex;
+		flex-direction: column;
+
 	}
 </style>

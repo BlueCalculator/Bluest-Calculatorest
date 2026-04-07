@@ -1,0 +1,562 @@
+---
+import Layout from "../../layouts/Layout.astro"
+import "../../scripts/elements.cardmeister.full.js"
+---
+
+<Layout title="Ride The Bus">
+    <Fragment slot="head">
+        <title>Cards</title>
+        <script src="../../scripts/elements.cardmeister.full.js"></script>
+    </Fragment>
+    <div class="outterBox" id="outterBox">
+
+        <div class="outterMultBox">
+            <p>Multiplyer To Bet Amount</p>
+            <div id="multBox">
+                <div id="2x">2x</div>
+                <div id="3x">3x</div>
+                <div id="4x">4x</div>
+                <div id="20x">20x</div>
+            </div>
+            <div id="winningAmountBox">
+                <p>Possible Payout</p>
+                <div id="winningAmount"></div>            
+            </div>
+
+        </div>
+
+        <div id="container" class="green-felt"></div>
+
+        <div class="bottomBox">
+            <div class="step" id="step1">
+                <p>Bet Amount</p>
+                <div class="range-container">
+                    <button type="button" onclick="step(-1)">-</button>
+                    <input type="number" id="betAmount" min=0" value="1" step="1">
+                    <button type="button" onclick="step(1)">+</button>
+                </div>
+                <!-- <input type="number" name="betAmount" id="betAmount" placeholder="Bet Amount" min="0" step="1" value="0" oninput="this.value = Math.abs(this.value)"> -->
+                <button class="button-good slotButton" type="button" onclick="play()">Play</button>
+            </div>
+            <div class="step" id="step2">
+<!-- red black -->
+                <p>Is the card red or black?</p>
+                <div class="buttonBox">
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('s1', 'r')">Red</button>
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('s1', 'b')">Black</button>
+                </div>
+            </div>
+            <div class="step" id="step3">
+<!-- higher Lower bail -->
+                <p>Is the next card higher or lower?</p>
+                <div class="buttonBox">
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('s2', 'l')">Lower</button>
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('s2', 'h')">Higher</button>
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('cO', '2x')">Cash Out</button>
+                </div>
+            </div>
+            <div class="step" id="step4">
+<!-- inside outside bail -->
+                <p>Is the next card inside or outside?</p>
+                <div class="buttonBox">
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('s3', 'i')">Inside</button>
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('s3', 'o')">Outside</button>
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('cO', '3x')">Cash Out</button>
+                </div>
+            </div>
+            <div class="step" id="step5">
+<!-- club heart diamond spades bail -->
+                <p>Is the next card Club, Heart, Diamond or Spade?</p>
+                <div class="buttonBox">
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('s4', 'c')">Club</button>
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('s4', 'h')">Heart</button>
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('s4', 'd')">Diamond</button>
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('s4', 's')">Spade</button>
+                    <button class="button-good slotButton" type="button" onclick="gameLoop('cO', '4x')">Cash Out</button>
+                </div>
+            </div> 
+        </div>
+        <!-- <div class="loserScreen">
+            <p>You Lost!</p>
+            <p>Better Luch Next Time.</p>
+            <button class="button-good slotButton" type="button" onclick="resetGame()">Play Again</button>
+        </div> -->
+    </div>
+        <script is:inline >
+            const $ = (id) => document.getElementById(id);
+
+            const betAmount = $("betAmount")
+            let betAmountSet = 0
+            let gameLoopOn = true
+
+            const twoX = $("2x")
+            const threeX = $("3x")
+            const fourX = $("4x")
+            const twentyX = $("20x")
+
+            const step1 = $("step1")
+            const step2 = $("step2")
+            const step3 = $("step3")
+            const step4 = $("step4")
+            const step5 = $("step5")
+
+            const winningAmount = $("winningAmount")
+            const winningAmountBox = $("winningAmountBox")
+
+            const suits = ['h','d','c','s'];
+            const ranks = ['A','2','3','4','5','6','7','8','9','T','J','Q','K'];
+            const rankValue = {
+              'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+              'T': 10, 'J': 11, 'Q': 12, 'K': 13
+            };
+
+            step1.style.display = "block"
+
+            let deck = [];
+            let cardPlayed = [];
+
+            function step(stepAmount){
+                let stepedNumber = Number(betAmount.value) + Number(stepAmount)
+                if(Math.sign(stepedNumber) == 1 || Math.sign(stepedNumber) == 0){
+                    betAmount.value = stepedNumber
+                } else {
+                    window.dispatchEvent(
+                      new CustomEvent('local-storage', {
+                        detail: {
+                          key: 'msg-bad',
+                          msg: "You Cannot Bet Negative Amounts.",
+                          bgc: "red",
+                          txtc: "White",
+                        },
+                      }),
+                    )
+                    return
+                }
+            }
+
+            function switchSteps(displayStep){
+                
+                step1.style.display = "none"
+                step2.style.display = "none"
+                step3.style.display = "none"
+                step4.style.display = "none"
+                step5.style.display = "none"
+
+                if(displayStep){
+                    displayStep.style.display = "block"
+                }else{
+                    step1.style.display = "block"
+                }
+            }    
+            function play(){
+                resetGame()
+                let CurrentPurseAmount = getPurseAmount()
+                betAmountSet = 0
+                betAmountSet = betAmount.value
+                if(CurrentPurseAmount - betAmountSet < 0){
+                    window.dispatchEvent(
+                      new CustomEvent('local-storage', {
+                        detail: {
+                          key: 'msg-bad',
+                          msg: "Your too broke to bet that much.",
+                          bgc: "red",
+                          txtc: "White",
+                        },
+                      }),
+                    )
+                    return
+                }
+                setPurseAmount(CurrentPurseAmount - betAmountSet)
+                buildDeck()
+
+                gameLoopOn = true
+                switchSteps(step2)
+
+                winningAmountBox.style.display = "block"
+                winningAmount.innerText = betAmountSet
+                
+            }
+
+            function resetGame() {
+              const loserScreen = document.querySelector('.loserScreen');
+              if (loserScreen) loserScreen.remove();
+            
+              winningAmountBox.style.display = "none";
+              winningAmount.innerHTML = "";
+              cardPlayed = [];
+              deck = [];
+              moveMult();
+              switchSteps();
+              betAmountSet = 0;
+              document.getElementById('container').innerHTML = "";
+            }
+
+
+            function lostGame() {
+                gameLoopOn = false
+
+                const container = document.getElementById('outterBox');
+
+                const loserScreen = document.createElement('div');
+                loserScreen.className = 'loserScreen';
+                loserScreen.innerHTML = `
+                    <p>You Lost!</p>
+                    <p>Better Luck Next Time.</p>
+                    <button class="button-good slotButton" type="button" onclick="resetGame()">Play Again</button>
+                `;
+
+
+                container.appendChild(loserScreen);
+
+            }
+
+
+            async function gameLoop(step, choice = null){
+
+
+
+            if(gameLoopOn){
+
+                let cid = drawCard()
+                cardPlayed.push(cid)
+
+                    if(step === 's1'){
+                    await addCardToPlay(cid)
+
+                    let suit = getSuit(cid)
+                    let rOrB = (suit === 'h' || suit === 'd') ? 'red' : 'black';
+
+                    if(rOrB === 'red' && choice === 'r' || rOrB === 'black' && choice === 'b'){
+                        moveMult(twoX, 2)
+                        switchSteps(step3)
+                    } else {
+                        lostGame()
+                    }
+                }else if(step === 'cO'){
+                    if(choice === '2x'){
+                        betAmountSet = betAmountSet * 2;
+                    }else if(choice === '3x'){
+                        betAmountSet = betAmountSet * 3;
+                    }else if(choice === '4x'){
+                        betAmountSet = betAmountSet * 4;
+                    }
+                    setPurseAmount(betAmountSet + parseInt(getPurseAmount()))
+                    betAmountSet = 0
+                    resetGame()
+                }else if(step === 's2'){
+                    await addCardToPlay(cid)
+                    
+                    let prevRank = getRank(cardPlayed[0]);
+                    let currRank = getRank(cid);
+                    let isHigher = currRank > prevRank;
+
+                    if ((choice === 'h' && isHigher) || (choice === 'l' && !isHigher)) {
+                        moveMult(threeX, 3)
+                        switchSteps(step4)
+                    } else {
+                      lostGame()
+
+                      previousCid = null;
+                      return;
+                    }
+                }else if(step === 's3'){
+                    await addCardToPlay(cid)
+
+                    let prevCard1 = getRank(cardPlayed[0])
+                    let prevCard2 = getRank(cardPlayed[1])
+                    let currCard = getRank(cardPlayed[2])
+
+                    if((choice === 'i' && (prevCard1 < currCard && prevCard2 > currCard) || (prevCard1 > currCard && prevCard2 < currCard)) || (choice === 'o' && !(prevCard1 < currCard && prevCard2 > currCard) || (prevCard1 > currCard && prevCard2 < currCard))){
+                        moveMult(fourX, 4)
+                        switchSteps(step5)
+                    }else{
+                        lostGame()
+                    }
+                }else if(step === 's4'){
+                    await addCardToPlay(cid)
+                    if(getSuit(cid) === choice){
+                        moveMult(twentyX, 20)
+                        betAmountSet = betAmountSet * 25;
+                        setPurseAmount(betAmountSet + parseInt(getPurseAmount()))
+                        betAmountSet = 0
+                        resetGame()
+                    }else{
+                        lostGame()
+                    }
+                }
+            }
+
+
+            }
+
+            async function addCardToPlay(cid) {
+              const container = document.getElementById('container');
+            
+              container.insertAdjacentHTML(
+                'beforeend',
+                `<playing-card cid="${cid}" class="playing-card"></playing-card>`
+              );
+            
+              const card = container.lastElementChild;
+            
+              const animation = card.animate(
+                [
+                  { opacity: 0, transform: 'translateY(-120px) rotate(-12deg) scale(0.9)' },
+                  { opacity: 1, transform: 'translateY(10px) rotate(3deg) scale(1.02)', offset: 0.8 },
+                  { opacity: 1, transform: 'translateY(0) rotate(0deg) scale(1)' }
+                ],
+                {
+                  duration: 550,
+                  easing: 'cubic-bezier(.22,1,.36,1)',
+                  fill: 'both'
+                }
+              );
+            
+              await animation.finished;
+            
+            }
+
+            function getSuit(cid){
+                return cid.slice(-1).toLowerCase();
+            }
+
+            function getRank(cid) {
+              return rankValue[cid.slice(0, -1)];
+            }
+
+            function moveMult(multToApply = null, mult = null) {
+                twoX.classList.remove('multWinner')
+                threeX.classList.remove('multWinner')
+                fourX.classList.remove('multWinner')
+                twentyX.classList.remove('multWinner')
+                
+                if(multToApply){
+                    multToApply.classList.add('multWinner')
+                }
+                
+                if(mult){
+                    let currentWinnings = parseInt(winningAmount.innerText)
+                    currentWinnings = currentWinnings * mult
+                    winningAmount.innerText = currentWinnings
+                }
+            }
+
+            function buildDeck(){
+                
+                for (let suit of suits) {
+                  for (let rank of ranks) {
+                    deck.push(rank + suit);
+                  }
+                }
+
+                function shuffle(array) {
+                  for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                  }
+                  return array;
+                }
+                shuffle(deck);
+            }
+
+            function drawCard() {
+              if (deck.length === 0) {
+                shuffleDeck();
+              }
+              const cid = deck.pop();
+              return cid;
+            }
+
+            function getPurseAmount(){
+                return localStorage.getItem('purseAmount')
+            }
+
+            function setPurseAmount(newAmount) {
+              // update localStorage
+              localStorage.setItem('purseAmount', newAmount)
+                        
+              // fire custom event so listeners update
+              window.dispatchEvent(
+                new CustomEvent('local-storage', {
+                  detail: {
+                    key: 'purseAmount',
+                    value: newAmount,
+                  },
+                }),
+              )
+            }
+        </script>
+</Layout>
+
+<style scoped>
+    .outterBox{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 86vh;
+      align-items: center;
+      position: relative;
+    }
+
+    #multBox{
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+    }
+    #multBox div {
+        width: 30px;
+        text-align: center;
+    }
+    .multWinner {
+        background-color: rgb(50, 201, 50);
+        border-radius: 50%;
+    }
+    .outterMultBox{
+        height: 100px;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+    }
+    .bottomBox{
+        border: 1px solid var(--solidLine);
+        border-radius: 10px 10px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        flex-direction: column;
+    }
+    
+    .slotButton{
+        width: 100%;
+        height: 50px;
+    }
+
+    .buttonBox{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    .bottomBox .step{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        justify-content: center;
+        display: none;
+    }
+    #container{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+
+    .green-felt {
+        border-radius: 10px;
+        border: 1px solid rgb(102, 62, 11);
+        box-shadow: 15px 15px 10px -3px rgba(0,0,0,0.1);
+        width: 450px;
+        height: 30vh;
+        background-color: #176d22;
+  
+        background-image:
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+        background-size: 120px 120px;
+    }
+
+    @media (max-width: 765px) {
+        .green-felt{
+            width: 90vw;
+        }
+        .bottomBox{
+            width: 100vw;
+        }
+    }
+
+
+#winningAmountBox{
+    display: none;
+    text-align: center;
+}
+
+.range-container{
+    width: 100%;
+    height: 10vh;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;   
+}
+
+.range-container button {
+    font-size: 50px;
+    width: 100px;
+    height: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--cream);
+    border: 1px var(--solidLine) solid;
+    cursor: pointer;
+
+}
+
+#slider, #betAmount{        
+    width: 200px;
+    border: 1px var(--solidLine) solid;
+    outline: none;
+    height: 80%;
+    align-items: center;
+}
+
+input[type="number"] {
+    font-size: 50px;
+    text-align: center;
+}
+
+input[type="number"] {
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+
+</style>
+
+<style is:global>
+    .playing-card {
+        width: 100px;
+        height: auto;
+    }
+    @media (max-width: 765px) {
+        .playing-card {
+            width: 20vw;
+            height: auto;
+        }        
+    }
+    .loserScreen {
+      position: fixed;
+      z-index: 999;
+      inset: 0;
+      margin: auto;
+      width: 300px;
+      height: 200px;
+      background: rgba(0, 0, 0, 0.67);
+      color: #ffffff;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+</style>
