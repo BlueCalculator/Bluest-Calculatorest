@@ -8,7 +8,7 @@
             <div id="purseAmount"><p>{{ purseAmount || 'Loading...' }} Loonies</p></div>
         </div>
         <div class="leftTopNav navItem">
-            <a href="market/">Market</a>
+            <a href="/market/">Market</a>
         </div>
     </div>
 </template>

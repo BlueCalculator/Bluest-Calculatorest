@@ -302,8 +302,8 @@ window.addEventListener("pointerup", stopErasing);
         image-rendering: pixelated;
         image-rendering: crisp-edges;
         position: relative;
-        width: 500px;
-        height: 500px;
+        max-width: 500px;
+        max-height: 500px;
         user-select: none;
         -webkit-user-select: none;
         -webkit-user-drag: none;
@@ -374,10 +374,17 @@ window.addEventListener("pointerup", stopErasing);
         gap: 20px;
         position: absolute;
         top: 0px;
+        right: 0px;
         z-index: 1000;
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.67);
+    }
 
+    @media (max-width: 490px) {
+      .workingWindow{
+        width: 200px;
+        height: 200px;
+      }
     }
 </style>

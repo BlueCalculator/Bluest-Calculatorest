@@ -1,0 +1,163 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="You Are Lost Gang">
+    <div class="outter">
+        <h1>You Are Very Lost</h1>
+    
+        <img class="chest idleWiggle chestWiggle" id="chest" src="/imgs/chestClosed.png" alt="A chest">
+
+        <a href="/" class="Return"><button class="button-good">Return Back to Safty</button></a>
+
+        <div id="lootWindow">
+            <div  class="lootWindow">
+                <h1 id="h1Loottext">You received a ROCK!</h1>
+                <img id="imgHolder" src="/imgs/Rock.png">
+                <button type="button" id="loonieButton" class="button-good" onclick="redeemLoonie()">0 Loonies</button>
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<script is:inline>
+    const chest = document.getElementById("chest")
+    const lootWindow = document.getElementById("lootWindow")
+    const imgHolder = document.getElementById("imgHolder")
+    const loonieButton = document.getElementById("loonieButton")
+    const h1Loottext = document.getElementById("h1Loottext")
+
+    let looinieAmount = 0;
+    let canPlay = true;
+
+    lootWindow.style.display = "none"
+
+    function playLoot() {
+        if (!canPlay) return
+        const randomNum = Math.floor(Math.random() * 101);
+
+        lootWindow.style.display = "block"
+
+        if (randomNum === 67) {
+            imgHolder.src = "/imgs/GoldLoonie.png"
+            loonieButton.innerText = "1000 Loonies"
+            h1Loottext.innerText = "You received a GOLDEN LOONIE!"
+            looinieAmount = 1000;
+        }
+
+            canPlay = false
+    }
+
+    function redeemLoonie(){
+        setPurseAmount(Number(getPurseAmount()) + Number(looinieAmount))
+        lootWindow.style.display = "none"
+    }
+
+    chest.addEventListener("click", (e) => {
+        chest.src = "/imgs/chestOpened.png"
+        chest.classList.remove("idleWiggle")
+        chest.classList.remove("chestWiggle")
+        playLoot()
+    })
+
+    function getPurseAmount(){
+        return localStorage.getItem('purseAmount')
+    }
+
+
+    function setPurseAmount(newAmount) {
+      // update localStorage
+      localStorage.setItem('purseAmount', newAmount)
+                
+      // fire custom event so listeners update
+      window.dispatchEvent(
+        new CustomEvent('local-storage', {
+          detail: {
+            key: 'purseAmount',
+            value: newAmount,
+          },
+        }),
+      )
+    }
+
+
+</script>
+
+<style scoped>
+    .Return{
+        margin-top: 20px;
+        color: var(--solidLine);
+        text-decoration: none;
+    }
+    .chest{
+        width: 400px;
+        height: 400px;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+    }
+
+    .outter {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .idleWiggle {
+        animation: wiggly 8s infinite;
+    }
+
+    .chestWiggle:hover{
+        animation: wiggly 1s infinite;
+    }
+
+    @keyframes wiggly {
+        0%{
+            transform: rotate(0deg);
+        }
+        20% {
+            transform: rotate(5deg);
+        }
+        25%{
+            transform: rotate(0px);
+        }
+        35%{
+            transform: rotate(-5deg);
+        }
+        50%{
+            transform: rotate(0deg);
+        }
+
+    }
+</style>
+
+<style is:global>
+    .lootWindow{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 20px;
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        z-index: 1000;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.67);
+    }
+    #imgHolder{
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        width: 500px;
+        height: auto;
+    }
+    #lootWindow{
+        width: 100%;
+        height: 100%;
+    }
+    #h1Loottext{
+        color: white;
+    }
+</style>
