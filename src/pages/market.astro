@@ -16,6 +16,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
         <div id="plateWindowWindwo">
             <div class="plateWindow" id="plateWindow">
+                <div id="exitButton">X</div>
                 <h2>Click and drag to clean the plate.</h2>
                 <div class="workingWindow" id="workingWindow">
                   <div class="stack" id="plateStack">
@@ -58,7 +59,7 @@ import Layout from '../layouts/Layout.astro';
 <script is:inline>
     const $ = (id) => document.getElementById(id);
     let boughtEmail = $('BoughtEmail')
-    const plateWindowInner = $('plateWindow')
+    const exitButton = $('exitButton')
     const plateWindow = $('plateWindowWindwo')
 
     plateWindow.style.display = "none"
@@ -67,7 +68,7 @@ import Layout from '../layouts/Layout.astro';
         plateWindow.style.display = 'block'
     }
 
-    plateWindowInner.addEventListener("click", (e) => {
+    exitButton.addEventListener("click", (e) => {
         plateWindow.style.display = "none"
     })
 
@@ -297,6 +298,8 @@ workingWindow.addEventListener("lostpointercapture", stopErasing);
 window.addEventListener("pointerup", stopErasing);
 </script>
 
+
+
 <style scoped>
     .workingWindow {
         image-rendering: pixelated;
@@ -361,8 +364,18 @@ window.addEventListener("pointerup", stopErasing);
         height: 100%;
     }
     .buttonBoxRedeem{
+        width: auto;
         height: 20px;
     }
+    #exitButton{
+      font-size: 50px;
+      color: white;
+      position: absolute;
+      right: 0;
+      top: 0;
+      padding: 20px;
+    }
+
 </style>
 
 <style is:global>
@@ -385,6 +398,12 @@ window.addEventListener("pointerup", stopErasing);
       .workingWindow{
         width: 200px;
         height: 200px;
+      }
+    }
+    @media (min-width: 491px) {
+      .workingWindow{
+        width: 500px;
+        height: 500px;        
       }
     }
 </style>
