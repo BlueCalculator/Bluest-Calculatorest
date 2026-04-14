@@ -5,7 +5,7 @@
         </div>
         <div class="purse">
             <p class="tagPurse">Purse:</p>
-            <div id="purseAmount"><p>{{ purseAmount || 'Loading...' }} Loonies</p></div>
+            <div id="purseAmount"><p>{{ purseAmount || '...' }}</p> <img src="/imgs/GoldLoonie.png" alt="Loonies"></div>
         </div>
         <div class="leftTopNav navItem">
             <a href="/market/">Market</a>
@@ -43,9 +43,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        gap: 10px;
         border: 1px solid var(--solidLine);
         border-radius: 10px;
         padding: 5px;
+    }
+    #purseAmount > img {
+        width: 40px;
+        height: auto;
     }
     .rightTopNav > a > img {
         width: auto;
@@ -96,7 +101,7 @@ onMounted(() => {
   if (stored) {
     purseAmount.value = stored
   } else {
-    purseAmount.value = idFromUrl || '111'
+    purseAmount.value = idFromUrl || '1'
     localStorage.setItem('purseAmount', purseAmount.value)
     console.log('Set purseAmount:', purseAmount.value)
   }

@@ -5,7 +5,7 @@ import Layout from '../layouts/Layout.astro';
 <Layout title="Market">
     <div class="outter">
         <div class="emailBuyer list displayColumn">
-            <h2>Want the Email?</h2>
+            <h2>Want My Email?</h2>
             <label for="BEmail">1000 Looniens:</label>
             <button class="button-good" id="BEmail" onclick="EmailBought()">Buy Email</button>
             <div id="BoughtEmail"></div>
@@ -48,6 +48,16 @@ import Layout from '../layouts/Layout.astro';
                     <button type="button" class="button-good" id="loonieRedeemer" onclick="redeemLoonie(1)">1 Loonie</button>         
                 </div>
             </div>
+
+            <!-- qvc style buying platform -->
+             <!-- Start Hihg lower price later 
+             zoom in and out
+             funny channel name
+             Item number
+             Item name
+             free S&H
+             Promotions 
+             -->
         </div>
 
 
@@ -79,9 +89,18 @@ import Layout from '../layouts/Layout.astro';
         if(Number(purseAmount) >= 1000){
             boughtEmail.innerText = atob("Qmx1ZUNhbGN1bGF0b3JAZ21haWwuY29t")
             setPurseAmount(Number(purseAmount) - 1000)
+        }else {
+            window.dispatchEvent(
+              new CustomEvent('local-storage', {
+                detail: {
+                  key: 'msg-bad',
+                  msg: "Your To Broke To Buy This.",
+                  bgc: "red",
+                  txtc: "White",
+                },
+              }),
+            )
         }
-
-
     }
 
     function getPurseAmount(){
@@ -368,6 +387,7 @@ window.addEventListener("pointerup", stopErasing);
         height: 20px;
     }
     #exitButton{
+      cursor: pointer;
       font-size: 50px;
       color: white;
       position: absolute;

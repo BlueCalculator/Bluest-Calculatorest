@@ -13,8 +13,8 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <div class="ascii-container">
-      <pre class="ascii-art" id="ascii-duck"></pre>
-      <pre class="ascii-art" id="ascii-calc"></pre>
+      <pre class="ascii-art noUserSelect" id="ascii-duck"></pre>
+      <pre class="ascii-art noUserSelect" id="ascii-calc"></pre>
     </div>
 
     <div class="list howToPlay" id="howToPlay">
@@ -142,11 +142,6 @@ import Layout from '../layouts/Layout.astro';
       white-space: pre;
       line-height: 1;
       will-change: transform;
-      -webkit-user-select: none;  /* Safari/Chrome */
-      -moz-user-select: none;     /* Firefox */
-      -ms-user-select: none;      /* IE/Edge */
-      user-select: none;          /* Standard */
-      -webkit-touch-callout: none; /* iOS Safari */
     }
 
     #ascii-duck {
