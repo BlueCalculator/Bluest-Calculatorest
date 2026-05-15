@@ -31,9 +31,9 @@ import "../../scripts/elements.cardmeister.full.js"
             <div class="step" id="step1">
                 <p>Bet Amount</p>
                 <div class="range-container">
-                    <button type="button" onclick="step(-1)">-</button>
+                    <button type="button" class="buttonForSlider" onclick="step(-1)">-</button>
                     <input type="number" id="betAmount" min=0" value="1" step="1">
-                    <button type="button" onclick="step(1)">+</button>
+                    <button type="button" class="buttonForSlider" onclick="step(1)">+</button>
                 </div>
                 <!-- <input type="number" name="betAmount" id="betAmount" placeholder="Bet Amount" min="0" step="1" value="0" oninput="this.value = Math.abs(this.value)"> -->
                 <button class="button-good slotButton" type="button" onclick="play()">Play</button>
@@ -505,7 +505,13 @@ import "../../scripts/elements.cardmeister.full.js"
 
 }
 
+.buttonForSlider{
+    color: var(--text-color-all);        
+}
+
 #slider, #betAmount{        
+    background-color: var(--background-color);
+    color: var(--text-color-all);        
     width: 200px;
     border: 1px var(--solidLine) solid;
     outline: none;

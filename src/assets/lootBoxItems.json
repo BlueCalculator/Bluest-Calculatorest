@@ -1,0 +1,150 @@
+{
+    "content": [
+        {
+            "id": "purple",
+            "type": "websiteColor",
+            "name": "Color Pack #1",
+            "rarity": "1",
+            "imgUrl": null,
+            "backgroundColor": "purple",
+            "description": "MAW PrOWPOW",
+            "data": [
+              { "name": "--primary", "value": "#007acc" },
+              { "name": "--sub-prime", "value": "#003d66" },
+              { "name": "--solidLine", "value": "#000" },
+              { "name": "--box-Background", "value": "purple" },
+              { "name": "--arrow", "value": "rgb(218, 165, 32)" },
+              { "name": "--cream", "value": "purple" },
+              { "name": "--background-color", "value": "purple" },
+              { "name": "--text-color-all", "value": "#fff" },
+              { "name": "--duck-text-color", "value": "rgb(255, 255, 255)" },
+              { "name": "--text-color-button", "value": "#000" }
+            ]
+        },
+        {
+            "id": "blue",
+            "type": "websiteColor",
+            "name": "Color Pack #2",
+            "rarity": "1",
+            "imgUrl": null,
+            "backgroundColor": "blue",
+            "description": "",
+            "data": [
+              { "name": "--primary", "value": "#007acc" },
+              { "name": "--sub-prime", "value": "#003d66" },
+              { "name": "--solidLine", "value": "#000" },
+              { "name": "--box-Background", "value": "purple" },
+              { "name": "--arrow", "value": "rgb(218, 165, 32)" },
+              { "name": "--cream", "value": "purple" },
+              { "name": "--background-color", "value": "purple" },
+              { "name": "--text-color-all", "value": "#fff" },
+              { "name": "--duck-text-color", "value": "rgb(255, 255, 255)" },
+              { "name": "--text-color-button", "value": "#000" }
+            ]
+        },
+        {
+            "id": "Wii",
+            "type": "cursor",
+            "name": "Wii Cursor Pack",
+            "rarity": "2",
+            "imgUrl": "cursors/1-wiic.png",
+            "backgroundColor": "white",
+            "description": "Literally the best console ever",
+            "data": [
+                {"name": "reg", "value": "cursors/1-wiic.png"},
+                {"name": "hover", "value": "cursors/1-wiir.png"}
+            ]
+        },
+                {
+            "id": "McDs",
+            "type": "cursor",
+            "name": "McDonalds Cursor Pack",
+            "rarity": "1",
+            "imgUrl": "cursors/2-cup.png",
+            "backgroundColor": "yellow",
+            "description": "'Happiest' place on earth",
+            "data": [
+                {"name": "reg", "value": "cursors/2-cup.png"},
+                {"name": "hover", "value": "cursors/2-bag.png"}
+            ]
+        },
+        {
+            "id": "DorToothy",
+            "type": "cursor",
+            "name": "DorToothy",
+            "rarity": "3",
+            "imgUrl": "cursors/3-toothbrush.png",
+            "backgroundColor": "red",
+            "description": "Like a Dorito and a Toothbrush :|",
+            "data": [
+                {"name": "reg", "value": "cursors/3-toothbrush.png"},
+                {"name": "hover", "value": "cursors/3-dorito.png"}
+            ]
+        },
+        {
+            "id": "Poke",
+            "type": "cursor",
+            "name": "Pokemon",
+            "rarity": "2",
+            "imgUrl": "cursors/4-Charmander.png",
+            "backgroundColor": "green",
+            "description": "Pokemon unit or something",
+            "data": [
+                {"name": "reg", "value": "cursors/4-Charmander.png"},
+                {"name": "hover", "value": "cursors/4-psyDuck.png"}
+            ]
+        },
+        {
+            "id": "notPokemon",
+            "type": "cursor",
+            "name": "not any pokemon",
+            "rarity": "1",
+            "imgUrl": "cursors/5-greenThing.png",
+            "backgroundColor": "gray",
+            "description": "Not pokemon _____",
+            "data": [
+                {"name": "reg", "value": "cursors/5-greenThing.png"},
+                {"name": "hover", "value": "cursors/5-Kirby.png"}
+            ]
+        },
+        {
+            "id": "windu",
+            "type": "cursor",
+            "name": "Mace Windu Cursor Pack",
+            "rarity": "4",
+            "imgUrl": "cursors/6-maceWinduLightsaber.png",
+            "backgroundColor": "purple",
+            "description": "The coolest jedi to ever live.",
+            "data": [
+                {"name": "reg", "value": "cursors/6-maceWinduLightsaber.png"},
+                {"name": "hover", "value": "cursors/6-maceWinduFace.png"}
+            ]
+        },
+        {
+            "id": "Minecraft",
+            "type": "cursor",
+            "name": "Minecraft Cursor Pack",
+            "rarity": "1",
+            "imgUrl": "cursors/7-wheat.png",
+            "backgroundColor": "lightBlue",
+            "description": "Epic Block Gama.",
+            "data": [
+                {"name": "reg", "value": "cursors/7-wheat.png"},
+                {"name": "hover", "value": "cursors/7-villager.png"}
+            ]
+        },
+        {
+            "id": "Queen",
+            "type": "cursor",
+            "name": "Queen and Mouse Cursor Pack",
+            "rarity": "5",
+            "imgUrl": "cursors/8-queenFace.png",
+            "backgroundColor": "pink",
+            "description": "The coolest things put together",
+            "data": [
+                {"name": "reg", "value": "cursors/8-queenFace.png"},
+                {"name": "hover", "value": "cursors/8-mouse.png"}
+            ]
+        }
+    ]
+}

@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import data from '../assets/lootBoxItems.json'
 ---
 
 <Layout title="Market">
@@ -12,7 +13,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
         <div class="needMoney list displayColumn">
             <h2>Do You Need Money?</h2>
-            <button class="button-good" onclick="displayPlateWindow()">Get More Money</button>
+            <button class="button-good" id="getMoneyBtn">Get Money</button>
         </div>
         <div id="plateWindowWindwo">
             <div class="plateWindow" id="plateWindow">
@@ -45,43 +46,273 @@ import Layout from '../layouts/Layout.astro';
                   <img class="sponge" id="sponge" src="/imgs/sponge.png" alt="">
                 </div>   
                 <div class="buttonBoxRedeem">
-                    <button type="button" class="button-good" id="loonieRedeemer" onclick="redeemLoonie(1)">1 Loonie</button>         
+                    <button type="button" class="button-good" id="loonieRedeemer">1 Loonie</button>         
                 </div>
             </div>
 
-            <!-- qvc style buying platform -->
-             <!-- Start Hihg lower price later 
-             zoom in and out
-             funny channel name
-             Item number
-             Item name
-             free S&H
-             Promotions 
-             -->
         </div>
+        <div class="buyAskin list displayColumn">
+          <h2>Treat Yourself to Some Loot Boxes</h2>
+          <div class="lootBoxes" >
+            <div class="lootItem" id="woodBox">
+              <img src="/imgs/shopImgs/woodBox.png" alt="Wood Box">
+              <p>100 Loonies</p>
+            </div>
+            <div class="lootItem" id="silverBox">
+              <img src="/imgs/shopImgs/silverBox.png" alt="Silver Box">
+              <p>500 Loonies</p>
+            </div>
+            <div class="lootItem" id="dimondBox">
+              <img src="/imgs/shopImgs/dimondBox.png" alt="Dimond Box">
+              <p>1000 Looines</p>
+            </div>
+          </div>
+        </div>
+        <div id="lootBoxOpenWindow">
+          <div id="scrollWheel"></div>
+          <div id="barIndicatorLoot"></div>
+          <button class="button-good" id="AddToBagBtn">Add To Bag</button>
+        </div>
+        <div class="list displayColumn" id="websiteBagIteams">
+          <h2>Loot Bag</h2>
+          <div id="lootBoxItemsDisplayInBag">
 
-
-
+          </div>
+        </div>
 
     </div>
 </Layout>
 
-<script is:inline>
+<script is:inline define:vars={{ data }}>
     const $ = (id) => document.getElementById(id);
     let boughtEmail = $('BoughtEmail')
     const exitButton = $('exitButton')
     const plateWindow = $('plateWindowWindwo')
+    const woodBox = $('woodBox')
+    const silverBox = $('silverBox')
+    const dimondBox = $('dimondBox')
+    const lootBoxOpenWindow = $('lootBoxOpenWindow')
+    const scrollWheel = $('scrollWheel')
+    const getMoneyBtn = $('getMoneyBtn')
+    const workingWindow =   $("workingWindow");
+    const plateStack =  $("plateStack");
+    const sponge =  $("sponge");
+    const eraseMarks =  $("eraseMarks");
+    const loonieRedeemer = $("loonieRedeemer")
+    const AddToBagBtn = $("AddToBagBtn")
+    const websiteBagIteams = $("websiteBagIteams")
+    const lootBoxItemsDisplayInBag = $("lootBoxItemsDisplayInBag")
 
     plateWindow.style.display = "none"
+    websiteBagIteams.style.display = "none"
+    let lootboxWheelItems = [];
+    let currentIteams = []
 
-    function displayPlateWindow(){
-        plateWindow.style.display = 'block'
+    const rarityOdds = {
+      wood: {  1: 70, 2: 20, 3: 8, 4: 2, 5: 0 },
+      silver: { 1: 20, 2: 25, 3: 30, 4: 20, 5: 5 },
+      dimond: { 1: 5, 2: 15, 3: 25, 4: 35, 5: 20 }
+    };
+
+    function getCurrentBagHoldings() {
+      return JSON.parse(localStorage.getItem('wonItems') || '[]');
     }
+
+    function getCurrentActiveItems() {
+      const raw = localStorage.getItem('activeItems');
+    
+      if (!raw || raw === 'undefined') {
+        return {};
+      }
+    
+      try {
+        return JSON.parse(raw);
+      } catch (err) {
+        console.log('bad activeItems in storage:', raw);
+        return {};
+      }
+    }
+
+    getMoneyBtn.addEventListener("click", (e) => {
+      plateWindow.style.display = 'block'
+    })
+
+    lootBoxItemsDisplayInBag.addEventListener('click', (e) => {
+      const btn = e.target.closest('.bagActionBtn');
+      if (!btn) return;
+
+      const { action, itemname, sell, type } = btn.dataset
+
+      if(action === 'sell'){
+
+        const updatedSavedLootboxIteams = getCurrentBagHoldings().filter(
+          id => String(id) !== String(itemname)
+        );
+            
+        localStorage.setItem('wonItems', JSON.stringify(updatedSavedLootboxIteams));
+        
+        setPurseAmount(Number(getPurseAmount())+Number(sell))
+        const itemDiv = btn.closest('.bagItem')
+        itemDiv.remove()
+      }
+      else if (action === 'activate') {
+        const activeItems = getCurrentActiveItems();
+      
+        if (activeItems[type] === itemname) {
+          delete activeItems[type];
+          btn.style.backgroundColor = '#007acc';
+        } else {
+          activeItems[type] = itemname;
+          btn.style.backgroundColor = 'red';
+        }
+
+      
+        localStorage.setItem('activeItems', JSON.stringify(activeItems));
+      }
+    });
+
+    if(getCurrentBagHoldings().length != 0){
+      updateWonItemsBag()
+    }
+
+    function updateWonItemsBag(){
+      lootBoxItemsDisplayInBag.innerHTML = ''
+      websiteBagIteams.style.display = "block"
+      getCurrentBagHoldings().forEach((item) => {
+        var foundItem = data.content.find(obj => obj.id === item);
+        let htmlizedLootItmesFromStorage = `
+            <div class="bagItem">
+              <img src="/imgs/${foundItem.imgUrl ?? 'pixelCalc.png'}" alt="where da img @" class="bagImg">
+              <h3>${foundItem.name}</h3>
+              <p>${foundItem.description}</p>
+              <button class="button-good bagActionBtn" data-action="sell" data-sell="${foundItem.rarity * 100}" data-itemname="${foundItem.id}">Sell for <span>${foundItem.rarity * 100}</span></button>
+              <!-- <button class="button-good bagActionBtn" data-action="activate" data-type="${foundItem.type}" data-itemname="${foundItem.id}">Activate</button> -->
+            </div>
+        `
+        lootBoxItemsDisplayInBag.innerHTML += htmlizedLootItmesFromStorage
+      });
+    }
+
+    AddToBagBtn.addEventListener("click", () => {
+      const wonItem = lootboxWheelItems[30];
+      const savedLootboxIteams = JSON.parse(localStorage.getItem('wonItems') || '[]')
+
+      savedLootboxIteams.push(wonItem.id);
+      localStorage.setItem('wonItems', JSON.stringify(savedLootboxIteams)); 
+    
+      lootBoxOpenWindow.style.display = "none";
+      lootboxWheelItems = [];
+      AddToBagBtn.style.display = "none";
+    
+      updateWonItemsBag()
+    });
+      
+    loonieRedeemer.addEventListener("click", (e) => {
+      redeemLoonie(1)
+    })
 
     exitButton.addEventListener("click", (e) => {
         plateWindow.style.display = "none"
     })
 
+    dimondBox.addEventListener('click', (e) => {
+        openBox("dimond", 1000)
+    });
+    silverBox.addEventListener('click', (e) => {
+        openBox("silver", 500)
+    });;
+    woodBox.addEventListener('click', (e) => {
+        openBox("wood", 100)
+    });;
+
+    function openBox(boxType, boxPrice) {
+      if (getPurseAmount() >= boxPrice) {
+        setPurseAmount(getPurseAmount()-boxPrice)
+        for (let i = 0; i < 40; i++) {
+          lootboxWheelItems.push(getRandomLootItem(rarityOdds[boxType], data.content));
+        }
+        lootBoxOpenWindow.style.display = 'block'
+        populateSpinner(lootboxWheelItems)
+        spinToItem(30)
+        setTimeout(() => {
+          AddToBagBtn.style.display = "block"
+        }, 6000);
+      }else {
+        window.dispatchEvent(
+          new CustomEvent('local-storage', {
+            detail: {
+              key: 'msg-bad',
+              msg: "Your To Broke To Buy This.",
+              bgc: "red",
+              txtc: "White",
+            },
+          }),
+        )
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      if (currentWinningIndex === null) return;
+    
+      const stopX = getStopXForIndex(currentWinningIndex);
+      scrollWheel.style.transition = 'none';
+      scrollWheel.style.transform = `translateX(${stopX}px)`;
+    });
+
+    let currentWinningIndex = null;
+
+    function getStopXForIndex(index) {
+      const items = scrollWheel.querySelectorAll('.spinnerOutter');
+      const winningItem = items[index];
+      const lootWindow = document.getElementById('lootBoxOpenWindow');
+    
+      if (!winningItem || !lootWindow) return 0;
+    
+      const itemCenter = winningItem.offsetLeft + (winningItem.offsetWidth / 2);
+      const windowCenter = lootWindow.clientWidth / 2;
+    
+      return windowCenter - itemCenter;
+    }
+
+    function spinToItem(winningIndex) {
+      currentWinningIndex = winningIndex;
+    
+      scrollWheel.style.transition = 'none';
+      scrollWheel.style.transform = 'translateX(0px)';
+    
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const stopX = getStopXForIndex(winningIndex);
+        
+          scrollWheel.style.transition = 'transform 6s cubic-bezier(.08,.8,.17,1)';
+          scrollWheel.style.transform = `translateX(${stopX}px)`;
+        });
+      });
+    }
+
+    function populateSpinner(items) {
+      LootBoxWheelItemsHtmlilized = items.map(item => `
+        <div class="spinnerOutter">
+          <div class="spinnerIteam li${item.rarity}">
+            <div class="logoImgUrl" style="background-color:${item.backgroundColor};">
+              <img src="/imgs/${item.imgUrl ?? 'pixelCalc.png'}" alt="">
+            </div>
+            <p>${item.name}</p>  
+          </div>
+        </div>`
+      );
+      scrollWheel.innerHTML = LootBoxWheelItemsHtmlilized.join('');
+    }
+
+    function getRandomLootItem(rarityOdds, lootItems) {
+      const pool = [];
+      for (const rarity in rarityOdds) {
+        for (let i = 0; i < rarityOdds[rarity]; i++) pool.push(rarity);
+      }
+      const chosen = pool[Math.floor(Math.random() * pool.length)];
+      const filtered = lootItems.filter(item => item.rarity === chosen);
+      return filtered[Math.floor(Math.random() * filtered.length)];
+    }
     
     function EmailBought(){
         let purseAmount = getPurseAmount()
@@ -107,7 +338,7 @@ import Layout from '../layouts/Layout.astro';
         return localStorage.getItem('purseAmount')
     }
 
-
+  
     function setPurseAmount(newAmount) {
       // update localStorage
       localStorage.setItem('purseAmount', newAmount)
@@ -123,11 +354,7 @@ import Layout from '../layouts/Layout.astro';
       )
     }
 
-const workingWindow =   $("workingWindow");
-const plateStack =  $("plateStack");
-const sponge =  $("sponge");
-const eraseMarks =  $("eraseMarks");
-const loonieRedeemer = $("loonieRedeemer")
+
 
 let isErasing = false;
 let lastPoint = null;
@@ -396,9 +623,121 @@ window.addEventListener("pointerup", stopErasing);
       padding: 20px;
     }
 
+    .lootBoxes{
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      transition: .3s;
+    }
+
+    .lootBoxes img:hover{
+      transform: scale(1.1);
+    }
+
+    .lootBoxes .lootItem:hover {
+            transform: scale(1.1);
+
+    }
+
+    .lootItem{
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      border: 1px black solid;
+      padding: 10px;
+      border-radius: 10px;
+      transition: .4s;
+    }
+
+    #lootBoxOpenWindow {
+      display: none;
+      background-color: rgba(0, 0, 0, 0.750);
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 10000;
+    }
+    #lootBoxItemsDisplayInBag{
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
 </style>
 
 <style is:global>
+
+    .bagImg {
+      width: 100px;
+      height: 100px;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    .bagItem {
+      width: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      justify-content: space-between;
+      min-height: 150px;
+    }
+
+    .li1{
+      box-shadow: inset 0 -30px 18px -13px #CCCCCC;
+      border-bottom: 5px solid #e7e7e7;
+    }
+
+    .li2{
+      box-shadow: inset 0 -30px 18px -13px green;
+      border-bottom: 5px solid rgb(41, 163, 41);
+    }
+
+    .li3{
+      box-shadow: inset 0 -30px 18px -13px rgb(0, 0, 177);
+      border-bottom: 5px solid rgb(42, 42, 255);
+    }
+
+    .li4{
+      box-shadow: inset 0 -30px 18px -13px #9C27B0;
+      border-bottom: 5px solid #ce35e9;
+    }
+    .li5{
+      box-shadow: inset 0 -30px 18px -13px #FF9800;
+      border-bottom: 5px solid #f3ab3f;
+    }
+
+    .logoImgUrl{
+      width: 10rem;
+      height: 10rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+    }
+
+    .logoImgUrl img {
+      width: 80%;
+      height: 80%;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+
+    }
+
+    #barIndicatorLoot{
+      background-color: rgba(255, 217, 0, 0.500);
+      height: 300px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 5px;
+      z-index: 9999999;
+    }
+
     .plateWindow{
         display: flex;
         align-items: center;
@@ -414,6 +753,53 @@ window.addEventListener("pointerup", stopErasing);
         background: rgba(0, 0, 0, 0.67);
     }
 
+    
+  .spinnerOutter{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+  .spinnerIteam {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(to bottom, #3b3b3b, #acacac);
+      margin-top: auto;
+      flex-direction: column;
+  }
+
+  .spinnerIteam p {
+    font-size: large;
+    color:white;
+  }
+
+  #AddToBagBtn {
+    z-index: 9999999999;
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+#scrollWheel{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100vh;
+    gap: 100px;
+}
+#lootBoxOpenWindow {
+  display: flex;
+  align-items: center;
+  z-index: 100;
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  overflow-x: hidden;
+}
     @media (max-width: 490px) {
       .workingWindow{
         width: 200px;

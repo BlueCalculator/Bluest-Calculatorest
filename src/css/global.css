@@ -1,11 +1,28 @@
 :root { 
-	--primary: #007acc; 
+	  --primary: #007acc; 
     --sub-prime: #003d66; 
     --solidLine: #000;
     --box-Background: rgb(255, 255, 255);
     --arrow: rgb(218, 165, 32);
     --cream: rgb(218, 218, 218);
+    --background-color: #fff;
+    --text-color-all: #000;
+    --duck-text-color: #000;
+    --text-color-button: #fff;
 }
+
+/* :root { 
+	  --primary: #007acc; 
+    --sub-prime: #003d66; 
+    --solidLine: #000;
+    --box-Background: purple;
+    --arrow: rgb(218, 165, 32);
+    --cream: purple;
+    --background-color: purple;
+    --text-color-all: #fff;
+    --duck-text-color: rgb(255, 255, 255);
+    --text-color-button: #000;
+} */
 
 body {
     overflow-x: hidden;
@@ -22,11 +39,11 @@ body {
 .button-good {
   appearance: none;
   background-color: var(--primary);
-  border: 1px solid rgba(27, 31, 35, .15);
+  border: 1px solid var(--solidLine);
   border-radius: 6px;
   box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
   box-sizing: border-box;
-  color: #fff;
+  color: var(--text-color-button);
   cursor: pointer;
   display: inline-block;
   font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
@@ -59,21 +76,26 @@ body {
 }
 
 .list{
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      border-radius: 10px;
-      margin: 20px;
-      padding: 10px;
-      border: 1px solid var(--solidLine);
-      height: auto;
-      box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.39);
-      -webkit-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.39);
-      -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.39);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 10px;
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid var(--solidLine);
+  height: auto;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.39);
+  -webkit-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.39);
+  -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.39);
 }
 
 .displayColumn{
   flex-direction: column;
+}
+
+.total-view{
+  background-color: var(--background-color);
+  color: var(--text-color-all);
 }
 

@@ -26,9 +26,9 @@ import Layout from '../../layouts/Layout.astro';
             <div class="play">
                 <div class="range-container">
                     <!-- <div>Bet Amount</div> -->
-                    <button type="button" onclick="step(-1)">-</button>
+                    <button type="button" class="buttonForSlider" onclick="step(-1)">-</button>
                     <input type="number" id="slider" min=0" value="1" step="1">
-                    <button type="button" onclick="step(1)">+</button>
+                    <button type="button" class="buttonForSlider" onclick="step(1)">+</button>
                 </div>
                 <button onclick="startGame()" class="button-good">Play</button>
             </div>
@@ -301,9 +301,15 @@ import Layout from '../../layouts/Layout.astro';
 
 }
 
-#slider{        
+.buttonForSlider{
+    color: var(--text-color-all);        
+}
+
+#slider{
+    color: var(--text-color-all);        
     width: 200px;
     border: 1px var(--solidLine) solid;
+    background-color: var(--background-color);
     outline: none;
     height: 80%;
     align-items: center;

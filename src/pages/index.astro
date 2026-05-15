@@ -121,15 +121,16 @@ import Layout from '../layouts/Layout.astro';
         text-align: center;
     }
     .ascii-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        width: 100vw;
-        margin-left: calc(-50vw + 50%);
-        overflow: hidden;
-        box-sizing: border-box;
+      color: var(--duck-text-color);
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
+      overflow: hidden;
+      box-sizing: border-box;
     }
 
     pre.ascii-art {
@@ -158,7 +159,7 @@ import Layout from '../layouts/Layout.astro';
       background-color: var(--box-Background);
       border: 1px solid var(--solidLine);
       text-decoration: none;
-      color: black;
+      color: var(--text-color-all);
       display: flex;
       align-items: center;
       justify-content: center;

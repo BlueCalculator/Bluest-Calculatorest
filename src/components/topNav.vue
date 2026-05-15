@@ -1,7 +1,7 @@
 <template>
     <div class="topNav">
         <div class="rightTopNav navItem">
-            <a href="/"><img src="/imgs/blueKing.png" alt="Calc Logo"></a>
+            <a href="/"><img class="topRightLogo" src="/imgs/pixelCalc.png" alt="Calc Logo"></a>
         </div>
         <div class="purse">
             <p class="tagPurse">Purse:</p>
@@ -28,9 +28,16 @@
         padding: 10px;
         border-bottom: 1px solid var(--solidLine);
     }
+
+    .topRightLogo{
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+    }
+    
     .tagPurse{
         font-size: .8rem;
     }
+
     .purse{
         display: flex;
         align-items: center;
@@ -38,6 +45,7 @@
         flex-direction: column;
         width: 8rem;
     }
+    
     #purseAmount {
         width: 100%;
         display: flex;
@@ -48,10 +56,12 @@
         border-radius: 10px;
         padding: 5px;
     }
+
     #purseAmount > img {
         width: 40px;
         height: auto;
     }
+
     .rightTopNav > a > img {
         width: auto;
         height: 90px;        
@@ -67,7 +77,7 @@
     .leftTopNav a {
         transition: .2s;
         text-decoration: none;
-        color: var(--solidLine);
+        color: var(--text-color-all);
     }
 
     .leftTopNav > a:hover {
@@ -92,6 +102,22 @@
 import { ref, onMounted, watch } from 'vue'
 
 const purseAmount = ref('')
+// const activeItems = ref({})
+
+// function onActiveItemsChange(newItems, oldItems) {
+//   console.log('activeItems changed:', newItems)
+//   localStorage.setItem('activeItems', JSON.stringify(newItems))
+// }
+
+// onMounted(() => {
+//   const stored = localStorage.getItem('activeItems')
+//   console.log(stored)
+//   activeItems.value = stored && stored !== 'undefined' ? JSON.parse(stored) : {}
+// })
+
+// watch(activeItems, (newItems) => {
+//   localStorage.setItem('activeItems', JSON.stringify(newItems))
+// }, { deep: true })
 
 onMounted(() => {
   const pathSegments = window.location.pathname.split('/')
