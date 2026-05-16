@@ -16,6 +16,33 @@ import Layout from '../layouts/Layout.astro';
       <pre class="ascii-art noUserSelect" id="ascii-duck"></pre>
       <pre class="ascii-art noUserSelect" id="ascii-calc"></pre>
     </div>
+    <div class="logoWallWrapper">
+      <div class="list logoWall">
+        <h3>Companies I Never Applied To (But Email Me Anyway)</h3>
+        <div class="logosSvg">
+            <img src="/imgs/svgs/logoWall/A&W_Root_Beer-Logo.svg" alt="A&W" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/AccuWeather-Logo.svg" alt="Accu Weather" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/Blockbuster_LLC-Logo.svg" alt="Blockbuster" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/cloudflare.svg" alt="downflare" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/Docker_(software)-Logo.svg" alt="Docker" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/ethereum.svg" alt="Ethereum" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/Goodreads-Logo.svg" alt="Goodreads" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/google-domains.svg" alt="Google Domains" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/hcaptcha.svg" alt="hcaptcha" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/Intel-Logo.svg" alt="intel" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/micron.svg" alt="micron" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/microsoft-azure.svg" alt="azure" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/Nasdaq-Logo.svg" alt="nasdaq" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/python.svg" alt="python" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/redhat.svg" alt="redhat" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/spotify.svg" alt="spotify" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/Taco_Bell-Logo.svg" alt="tacoBell" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/Waffle_House-Logo.svg" alt="waffleHouse" class="logoSvg">
+            <img src="/imgs/svgs/logoWall/YouTube-Logo.svg" alt="Youtube" class="logoSvg">
+        </div>
+      </div>
+    </div>
+
 
     <div class="list howToPlay" id="howToPlay">
       <h3>How To Play</h3>
@@ -120,6 +147,45 @@ import Layout from '../layouts/Layout.astro';
         margin-bottom: 100px;
         text-align: center;
     }
+    .logoSvg{
+      width: 100px;
+      max-height: 50px;
+      filter: grayscale(100%) opacity(70%);      
+      transition: filter 0.3s ease;
+    }
+    .logosSvg{
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      }
+    .logoSvg:hover{
+      filter: grayscale(0%) opacity(100%); 
+    }
+    .logoWall {
+      display: flex;
+      flex-direction: column;
+    }
+    .logoWallWrapper{
+      position: relative;
+      z-index: 1;
+    }
+    .logoWallWrapper::before {
+      content: "";
+      position: absolute;
+      inset: auto 0 auto auto;
+      width: 220px;
+      height: 220px;
+      top: 50%;
+      right: -40px;
+      transform: translateY(-50%);
+      border-radius: 50%;
+      background: blue;
+      filter: blur(60px);
+      z-index: -1;
+    }
     .ascii-container {
       color: var(--duck-text-color);
       display: flex;
@@ -128,6 +194,7 @@ import Layout from '../layouts/Layout.astro';
       align-items: center;
       position: relative;
       width: 100vw;
+      min-height: 20vh;
       margin-left: calc(-50vw + 50%);
       overflow: hidden;
       box-sizing: border-box;
