@@ -175,11 +175,10 @@ import Layout from '../layouts/Layout.astro';
     .logoWallWrapper::before {
       content: "";
       position: absolute;
-      inset: auto 0 auto auto;
-      width: 220px;
       height: 220px;
+      width: 220px;
       top: 50%;
-      right: -40px;
+      right: 0px;
       transform: translateY(-50%);
       border-radius: 50%;
       background: blue;
@@ -242,3 +241,5 @@ import Layout from '../layouts/Layout.astro';
       flex-direction: column;
     }
 </style>
+
+<style is:global></style>
