@@ -60,14 +60,12 @@ import Layout from '../layouts/Layout.astro';
     <div class="list">
 
       <a class="gameItem" href="./games/rideTheBus">      
-        <div class="rideTheBus">
+          <img class="gameViewLogo" src="/imgs/gameLogos/bus.png" alt="bus img">
           <p>RIDE THE BUS</p>
-        </div>
       </a>
       <a class="gameItem" href="./games/slots">
-        <div class="slots">
+          <img class="gameViewLogo" src="/imgs/gameLogos/slots.png" alt="slots img">
           <p>SLOTS</p>
-        </div>
       </a>
  
     </div>
@@ -132,6 +130,12 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <style scoped>
+  .gameViewLogo{
+    width: 150px;
+    height: auto;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
     h1 {
       font-size: 4rem;
     }
@@ -229,13 +233,18 @@ import Layout from '../layouts/Layout.astro';
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-direction: column;
       border-radius: 10px;
       width: 200px;
       height: 200px;
       transition: .5s;
+      position: relative;
+      z-index: 1;
+
     }
     .gameItem:hover {
-      transform: skew(1.5deg);
+      transform: scale(1.1);
+      z-index: 10;
     }
     .howToPlay{
       flex-direction: column;
